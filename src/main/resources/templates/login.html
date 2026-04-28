@@ -114,11 +114,6 @@
             const token = data.token;
             if (!token) throw new Error('Token não recebido do servidor.');
 
-            // await fetch(API_BASE + '/user/protected', {
-            //     method: 'GET',
-            //     headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token}
-            // })
-
             showAlert(alertSuccess, 'Login realizado! Redirecionando...');
 
             window.location.href = PROTECTED_URL;
