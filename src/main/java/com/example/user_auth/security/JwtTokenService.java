@@ -1,18 +1,14 @@
 package com.example.user_auth.security;
 
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
-import io.jsonwebtoken.security.SignatureException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
-
 import javax.crypto.SecretKey;
 import java.util.*;
 import java.util.function.Function;
@@ -23,7 +19,7 @@ public class JwtTokenService {
     @Value("${jwt.secret}")
     private String secret;
 
-    private long expirationMs = 60000 * 10; // 1 min * 10
+    private long expirationMs = 60000 * 10 * 60 * 24; // 24 horas
 
     public String generateToken(UserDetails userDetails) {
         Map<String, Object> claims = new HashMap<>();
