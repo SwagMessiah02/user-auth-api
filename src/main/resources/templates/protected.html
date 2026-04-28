@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tópicos Especiais em Computação — Aula 01</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --bg:        #0c0c0f;
+            --surface:   #13131a;
+            --surface2:  #16161f;
+            --border:    #1e1e2e;
+            --accent:    #c8a97e;
+            --accent-dim:#8a6f4e;
+            --text:      #e8e6e1;
+            --muted:     #6b6878;
+            --danger:    #e05c5c;
+            --success:   #5cb98c;
+            --info:      #5c8ce0;
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 300;
+            line-height: 1.7;
+        }
+
+        /* ── GRAIN ── */
+        body::before {
+            content: '';
+            position: fixed; inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* ── AMBIENT GLOWS ── */
+        .glow-1, .glow-2 {
+            position: fixed;
+            width: 700px; height: 700px;
+            border-radius: 50%;
+            pointer-events: none;
+        }
+        .glow-1 {
+            background: radial-gradient(circle, rgba(200,169,126,.05) 0%, transparent 65%);
+            top: -300px; right: -250px;
+            animation: drift1 16s ease-in-out infinite alternate;
+        }
+        .glow-2 {
+            background: radial-gradient(circle, rgba(92,140,224,.04) 0%, transparent 65%);
+            bottom: -300px; left: -200px;
+            animation: drift2 20s ease-in-out infinite alternate;
+        }
+        @keyframes drift1 { to { transform: translate(-30px, 50px); } }
+        @keyframes drift2 { to { transform: translate(40px, -40px); } }
+
+        /* ── WRAPPER ── */
+        .wrapper {
+            position: relative;
+            z-index: 1;
+            max-width: 860px;
+            margin: 0 auto;
+            padding: 0 2rem 6rem;
+        }
+
+        /* ── HERO ── */
+        .hero {
+            padding: 5rem 0 4rem;
+            border-bottom: 1px solid var(--border);
+            animation: fadeUp .6s ease both;
+        }
+
+        .hero-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: .5rem;
+            font-size: .75rem;
+            letter-spacing: .12em;
+            text-transform: uppercase;
+            color: var(--accent);
+            margin-bottom: 1.8rem;
+        }
+        .hero-tag::before {
+            content: '';
+            display: block;
+            width: 20px; height: 1px;
+            background: var(--accent);
+        }
+
+        .hero h1 {
+            font-family: 'DM Serif Display', serif;
+            font-size: clamp(2.4rem, 6vw, 4rem);
+            line-height: 1.1;
+            margin-bottom: 1.2rem;
+        }
+        .hero h1 em {
+            font-style: italic;
+            color: var(--accent);
+        }
+
+        .hero-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+        .hero-meta span {
+            font-size: .8rem;
+            color: var(--muted);
+            letter-spacing: .05em;
+        }
+        .hero-meta span strong {
+            color: var(--text);
+            font-weight: 400;
+        }
+
+        /* ── SECTION ── */
+        .section {
+            padding: 3.5rem 0;
+            border-bottom: 1px solid var(--border);
+            opacity: 0;
+            transform: translateY(24px);
+            transition: opacity .5s ease, transform .5s ease;
+        }
+        .section.visible {
+            opacity: 1;
+            transform: none;
+        }
+
+        .section-label {
+            font-size: .72rem;
+            letter-spacing: .14em;
+            text-transform: uppercase;
+            color: var(--accent-dim);
+            margin-bottom: 1rem;
+        }
+
+        .section h2 {
+            font-family: 'DM Serif Display', serif;
+            font-size: clamp(1.5rem, 3vw, 2rem);
+            line-height: 1.2;
+            margin-bottom: 1.2rem;
+        }
+
+        .section p {
+            color: var(--muted);
+            font-size: .95rem;
+            max-width: 680px;
+            margin-bottom: .9rem;
+        }
+        .section p:last-child { margin-bottom: 0; }
+
+        /* ── COMPARE TABLE ── */
+        .compare {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1.8rem;
+            font-size: .88rem;
+        }
+        .compare th {
+            padding: .7rem 1rem;
+            text-align: left;
+            font-weight: 500;
+            font-size: .75rem;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+            border-bottom: 1px solid var(--border);
+        }
+        .compare th:first-child  { color: var(--muted); }
+        .compare th:nth-child(2) { color: var(--danger); }
+        .compare th:nth-child(3) { color: var(--success); }
+
+        .compare td {
+            padding: .75rem 1rem;
+            border-bottom: 1px solid var(--border);
+            color: var(--muted);
+            vertical-align: top;
+        }
+        .compare td:first-child { color: var(--text); font-weight: 400; width: 22%; }
+        .compare tr:last-child td { border-bottom: none; }
+        .compare tr:hover td { background: var(--surface); }
+
+        /* ── CARD GRID ── */
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 1rem;
+            margin-top: 1.8rem;
+        }
+
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.3rem;
+            transition: border-color .2s, transform .2s;
+        }
+        .card:hover {
+            border-color: var(--accent-dim);
+            transform: translateY(-2px);
+        }
+
+        .card-icon {
+            font-size: 1.4rem;
+            margin-bottom: .75rem;
+        }
+
+        .card h3 {
+            font-family: 'DM Serif Display', serif;
+            font-size: 1rem;
+            margin-bottom: .4rem;
+        }
+
+        .card p {
+            font-size: .82rem;
+            color: var(--muted);
+            line-height: 1.6;
+            margin: 0;
+        }
+
+        /* ── CYCLE ── */
+        .cycle {
+            display: flex;
+            align-items: center;
+            gap: 0;
+            margin-top: 1.8rem;
+            flex-wrap: wrap;
+        }
+
+        .cycle-step {
+            flex: 1;
+            min-width: 120px;
+            text-align: center;
+            padding: 1rem .5rem;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            position: relative;
+            transition: border-color .2s;
+        }
+        .cycle-step:hover { border-color: var(--accent-dim); }
+
+        .cycle-step .num {
+            font-family: 'DM Serif Display', serif;
+            font-size: 1.6rem;
+            color: var(--border);
+            display: block;
+            margin-bottom: .3rem;
+        }
+
+        .cycle-step .label {
+            font-size: .78rem;
+            color: var(--muted);
+            line-height: 1.4;
+        }
+
+        .cycle-arrow {
+            color: var(--danger);
+            font-size: 1.2rem;
+            padding: 0 .3rem;
+            flex-shrink: 0;
+        }
+
+        /* Ciclo vicioso em vermelho */
+        .cycle.vicious .cycle-step { border-color: rgba(224,92,92,.2); }
+        .cycle.vicious .cycle-step .num { color: rgba(224,92,92,.15); }
+        .cycle.vicious .cycle-step:hover { border-color: var(--danger); }
+
+        /* Ciclo virtuoso em verde */
+        .cycle.virtuous .cycle-step { border-color: rgba(92,185,140,.2); }
+        .cycle.virtuous .cycle-step .num { color: rgba(92,185,140,.15); }
+        .cycle.virtuous .cycle-step:hover { border-color: var(--success); }
+        .cycle.virtuous .cycle-arrow { color: var(--success); }
+
+        /* ── PIPELINE ── */
+        .pipeline {
+            display: flex;
+            gap: 0;
+            margin-top: 1.8rem;
+            overflow-x: auto;
+            padding-bottom: .5rem;
+        }
+
+        .pipe-step {
+            flex: 1;
+            min-width: 130px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            padding: 1rem .8rem;
+            text-align: center;
+            position: relative;
+            transition: background .2s;
+        }
+        .pipe-step:first-child { border-radius: 8px 0 0 8px; }
+        .pipe-step:last-child  { border-radius: 0 8px 8px 0; }
+        .pipe-step:not(:last-child)::after {
+            content: '›';
+            position: absolute;
+            right: -9px;
+            top: 50%; transform: translateY(-50%);
+            color: var(--accent);
+            font-size: 1.2rem;
+            z-index: 2;
+        }
+        .pipe-step:hover { background: var(--surface2); }
+
+        .pipe-step .icon { font-size: 1.3rem; margin-bottom: .4rem; }
+        .pipe-step .name { font-size: .78rem; color: var(--text); font-weight: 500; margin-bottom: .2rem; }
+        .pipe-step .desc { font-size: .72rem; color: var(--muted); }
+
+        /* ── QUOTE ── */
+        .quote {
+            margin: 2rem 0;
+            padding: 1.5rem 1.8rem;
+            background: var(--surface);
+            border-left: 3px solid var(--accent);
+            border-radius: 0 8px 8px 0;
+        }
+        .quote p {
+            font-family: 'DM Serif Display', serif;
+            font-style: italic;
+            font-size: 1.05rem;
+            color: var(--text);
+            margin: 0;
+            line-height: 1.6;
+        }
+
+        /* ── HIGHLIGHT BOXES ── */
+        .highlight-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 1rem;
+            margin-top: 1.8rem;
+        }
+        .highlight {
+            padding: 1.2rem;
+            border-radius: 8px;
+            border: 1px solid;
+        }
+        .highlight.red    { background: rgba(224,92,92,.07);  border-color: rgba(224,92,92,.25);  }
+        .highlight.green  { background: rgba(92,185,140,.07); border-color: rgba(92,185,140,.25); }
+        .highlight.gold   { background: rgba(200,169,126,.07); border-color: rgba(200,169,126,.25); }
+
+        .highlight .hl-label {
+            font-size: .7rem;
+            letter-spacing: .1em;
+            text-transform: uppercase;
+            margin-bottom: .5rem;
+        }
+        .highlight.red   .hl-label { color: var(--danger); }
+        .highlight.green .hl-label { color: var(--success); }
+        .highlight.gold  .hl-label { color: var(--accent); }
+
+        .highlight h4 {
+            font-family: 'DM Serif Display', serif;
+            font-size: 1.1rem;
+            margin-bottom: .4rem;
+        }
+        .highlight p {
+            font-size: .8rem;
+            color: var(--muted);
+            margin: 0;
+            line-height: 1.5;
+        }
+
+        /* ── FOOTER ── */
+        .footer {
+            margin-top: 4rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        .footer-brand {
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+            font-family: 'DM Serif Display', serif;
+            font-size: .95rem;
+        }
+        .footer-dot {
+            width: 7px; height: 7px;
+            border-radius: 50%;
+            background: var(--accent);
+        }
+        .footer p {
+            font-size: .78rem;
+            color: var(--muted);
+            margin: 0;
+        }
+
+        /* ── ANIMATIONS ── */
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 600px) {
+            .highlight-row { grid-template-columns: 1fr; }
+            .cycle { flex-direction: column; align-items: stretch; }
+            .cycle-arrow { transform: rotate(90deg); text-align: center; }
+        }
+    </style>
+</head>
+<body>
+<div class="glow-1"></div>
+<div class="glow-2"></div>
+
+<div class="wrapper">
+
+    <!-- ═══ HERO ═══ -->
+    <header class="hero">
+        <h1>Tópicos Especiais<br>em <em>Computação</em></h1>
+        <p style="color:var(--muted); max-width:600px; margin-top:.8rem;">
+            Conceitos Introdutórios ao DevOps e à Entrega Contínua.
+        </p>
+        <div class="hero-meta">
+            <span><strong>Curso: </strong> &nbsp;Análise e Desenvolvimento de Sistemas</span>
+        </div>
+    </header>
+
+    <!-- ═══ 1. A VIDA RODA EM SOFTWARE ═══ -->
+    <section class="section">
+        <p class="section-label">01 — Introdução</p>
+        <h2>A Vida Roda em Software</h2>
+        <p>
+            O software é o motor invisível do dia a dia. Quando um sistema falha, não é apenas a empresa que perde negócios — são os usuários que perdem a capacidade de funcionar.
+        </p>
+        <p>
+            Qualidade e estabilidade são inegociáveis desde a primeira linha de código até a produção.
+        </p>
+    </section>
+
+    <!-- ═══ 2. CONFLITO DE INTERESSES ═══ -->
+    <section class="section">
+        <p class="section-label">02 — O Modelo Tradicional</p>
+        <h2>O Conflito de Interesses</h2>
+        <p>
+            A estrutura tradicional de TI é baseada numa divisão rígida de responsabilidades que cria incentivos divergentes. Desenvolvimento quer mudança; Operações quer estabilidade.
+        </p>
+
+        <table class="compare">
+            <thead>
+            <tr>
+                <th>Dimensão</th>
+                <th>Desenvolvimento</th>
+                <th>Operações</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>Foco</td>
+                <td>Mudança constante</td>
+                <td>Estabilidade do ambiente</td>
+            </tr>
+            <tr>
+                <td>Metodologia</td>
+                <td>Ágil, iterações curtas</td>
+                <td>Reação imediata a falhas</td>
+            </tr>
+            <tr>
+                <td>Incentivo</td>
+                <td>Introduzir novas features</td>
+                <td>Evitar mudanças e riscos</td>
+            </tr>
+            </tbody>
+        </table>
+
+        <div class="quote" style="margin-top:1.8rem;">
+            <p>Essa separação estabelece a cultura do <em>hand-off</em> — o time de desenvolvimento finaliza o código e o "joga por cima do muro" para operações.</p>
+        </div>
+    </section>
+
+    <!-- ═══ 3. ÚLTIMA MILHA ═══ -->
+    <section class="section">
+        <p class="section-label">03 — O Gargalo</p>
+        <h2>O Problema da "Última Milha"</h2>
+        <p>
+            O conceito descreve o hiato crítico entre o momento em que o software atende aos requisitos funcionais e sua efetiva entrada em produção. O ROI só é percebido quando o software está rodando em produção — a última milha é onde o valor de negócio reside.
+        </p>
+
+        <div class="card-grid">
+            <div class="card">
+                <div class="card-icon">🧪</div>
+                <h3>Testes de Integração</h3>
+                <p>Verificação do comportamento do software em conjunto.</p>
+            </div>
+            <div class="card">
+                <div class="card-icon">⚡</div>
+                <h3>Testes de Performance</h3>
+                <p>Garantia de estabilidade sob carga real.</p>
+            </div>
+            <div class="card">
+                <div class="card-icon">🔒</div>
+                <h3>Testes de Segurança</h3>
+                <p>Auditorias e análise de vulnerabilidades.</p>
+            </div>
+            <div class="card">
+                <div class="card-icon">✅</div>
+                <h3>Homologação (UAT)</h3>
+                <p>Validação final com usuários e donos do negócio.</p>
+            </div>
+            <div class="card">
+                <div class="card-icon">🗄️</div>
+                <h3>Migração de Dados</h3>
+                <p>Execução e validação de alterações em schemas de banco.</p>
+            </div>
+            <div class="card">
+                <div class="card-icon">🚀</div>
+                <h3>Ensaios de Deploy</h3>
+                <p>Simulações do processo de entrada em produção.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══ 4. CICLO VICIOSO ═══ -->
+    <section class="section">
+        <p class="section-label">04 — O Efeito Colateral</p>
+        <h2>Ciclo Vicioso de Deploys Arriscados</h2>
+        <p>
+            A falta de práticas integradas alimenta um mecanismo de feedback negativo: quanto mais burocrático o processo, maior o risco percebido, gerando ainda mais restrições.
+        </p>
+
+        <div class="cycle vicious">
+            <div class="cycle-step">
+                <span class="num">01</span>
+                <span class="label">Processos<br>Burocráticos</span>
+            </div>
+            <div class="cycle-arrow">→</div>
+            <div class="cycle-step">
+                <span class="num">02</span>
+                <span class="label">Menor Frequência<br>de Deploy</span>
+            </div>
+            <div class="cycle-arrow">→</div>
+            <div class="cycle-step">
+                <span class="num">03</span>
+                <span class="label">Acúmulo de<br>Mudanças</span>
+            </div>
+            <div class="cycle-arrow">→</div>
+            <div class="cycle-step">
+                <span class="num">04</span>
+                <span class="label">Aumento<br>do Risco</span>
+            </div>
+            <div class="cycle-arrow">→</div>
+            <div class="cycle-step">
+                <span class="num">05</span>
+                <span class="label">Mais<br>Burocracia</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══ 5. DEVOPS / ENTREGA CONTÍNUA ═══ -->
+    <section class="section">
+        <p class="section-label">05 — A Alternativa</p>
+        <h2>DevOps e Entrega Contínua</h2>
+        <p>
+            Empresas como Google, Amazon, Netflix, GitHub e Facebook transformaram o deploy em vantagem competitiva. Atrasar a entrega é atrasar a capacidade de adaptação ao mercado.
+        </p>
+
+        <div class="quote">
+            <p>"A filosofia de entrega contínua permite que organizações realizem dezenas ou até centenas de deploys por dia de forma segura, transformando a tecnologia em um agente de agilidade e não em um entrave."</p>
+        </div>
+
+        <div class="highlight-row">
+            <div class="highlight red">
+                <p class="hl-label">Antes</p>
+                <h4>Semanas / Meses</h4>
+                <p>Ciclo longo de feedback, alto risco por acúmulo de mudanças.</p>
+            </div>
+            <div class="highlight gold">
+                <p class="hl-label">Transição</p>
+                <h4>Automação</h4>
+                <p>O deploy deixa de ser uma cerimônia e passa a ser um evento rotineiro.</p>
+            </div>
+            <div class="highlight green">
+                <p class="hl-label">Depois</p>
+                <h4>Horas / Minutos</h4>
+                <p>Feedback imediato, incrementos pequenos, risco drasticamente reduzido.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══ 6. CICLO VIRTUOSO ═══ -->
+    <section class="section">
+        <p class="section-label">06 — A Inversão</p>
+        <h2>Ciclo Virtuoso pela Automação</h2>
+        <p>
+            Contra-intuitivamente, aumentar a frequência de deploys <em>reduz</em> o risco. Mudanças incrementais têm escopo menor e, em caso de falha, o diagnóstico da causa raiz é mais rápido e preciso.
+        </p>
+
+        <div class="cycle virtuous">
+            <div class="cycle-step">
+                <span class="num">01</span>
+                <span class="label">Processo<br>Automatizado</span>
+            </div>
+            <div class="cycle-arrow">→</div>
+            <div class="cycle-step">
+                <span class="num">02</span>
+                <span class="label">Maior Frequência<br>de Deploy</span>
+            </div>
+            <div class="cycle-arrow">→</div>
+            <div class="cycle-step">
+                <span class="num">03</span>
+                <span class="label">Menos Mudanças<br>por Vez</span>
+            </div>
+            <div class="cycle-arrow">→</div>
+            <div class="cycle-step">
+                <span class="num">04</span>
+                <span class="label">Risco<br>Reduzido</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══ 7. ANATOMIA DA AUTOMAÇÃO ═══ -->
+    <section class="section">
+        <p class="section-label">07 — A Anatomia</p>
+        <h2>Os 4 Pilares da Automação</h2>
+        <p>
+            DevOps expande a automação que os desenvolvedores já usam (como Integração Contínua) para abranger toda a Última Milha. O padrão ouro: cada etapa deve ser roteirizada, testável e repetível sem intervenção humana.
+        </p>
+
+        <div class="pipeline">
+            <div class="pipe-step">
+                <div class="icon">🧪</div>
+                <div class="name">Testes Automatizados</div>
+                <div class="desc">TDD &amp; cobertura contínua</div>
+            </div>
+            <div class="pipe-step">
+                <div class="icon">🏗️</div>
+                <div class="name">Provisionamento</div>
+                <div class="desc">Ambientes sob demanda</div>
+            </div>
+            <div class="pipe-step">
+                <div class="icon">⚙️</div>
+                <div class="name">Gerenciamento de Config</div>
+                <div class="desc">Infraestrutura como código</div>
+            </div>
+            <div class="pipe-step">
+                <div class="icon">🚀</div>
+                <div class="name">Deploy Automatizado</div>
+                <div class="desc">Zero intervenção manual</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══ 8. NOVO PARADIGMA ═══ -->
+    <section class="section">
+        <p class="section-label">08 — O Novo Paradigma</p>
+        <h2>Tradicional <em>vs</em> DevOps</h2>
+        <p>A transição altera a percepção da TI: de "departamento de custo" e "gargalo" para agente de capacitação do negócio.</p>
+
+        <table class="compare" style="margin-top:1.8rem;">
+            <thead>
+            <tr>
+                <th>Dimensão</th>
+                <th>Abordagem Tradicional</th>
+                <th>Cultura DevOps</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>Foco Principal</td>
+                <td>Meu departamento</td>
+                <td>Valor para o Negócio</td>
+            </tr>
+            <tr>
+                <td>Estrutura</td>
+                <td>Silos isolados e conflitantes</td>
+                <td>Equipes colaborativas</td>
+            </tr>
+            <tr>
+                <td>Processo</td>
+                <td>Hand-off manual e tickets</td>
+                <td>Pipeline automatizada</td>
+            </tr>
+            <tr>
+                <td>Tamanho do Lote</td>
+                <td>Lotes gigantes de código</td>
+                <td>Pequenos incrementos</td>
+            </tr>
+            <tr>
+                <td>Ritmo de Entrega</td>
+                <td>Lento — meses/semanas</td>
+                <td>Contínuo — dias/horas</td>
+            </tr>
+            </tbody>
+        </table>
+
+        <div class="quote" style="margin-top:2rem;">
+            <p>A 'Última Milha' é, na verdade, a Primeira. O ciclo de vida do software não deve terminar quando chega em produção — <em>ele começa lá.</em></p>
+        </div>
+    </section>
+
+    <!-- ═══ FOOTER ═══ -->
+    <footer class="footer">
+        <div class="footer-brand">
+            <span class="footer-dot"></span>
+            IFPI &mdash; Campus Pedro II
+        </div>
+        <p>Tópicos Especiais em Computação &mdash;</p>
+    </footer>
+
+</div>
+
+<script>
+    // Intersection Observer para animações de entrada
+    const sections = document.querySelectorAll('.section');
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(e => {
+            if (e.isIntersecting) {
+                e.target.classList.add('visible');
+                observer.unobserve(e.target);
+            }
+        });
+    }, { threshold: 0.08 });
+
+    sections.forEach(s => observer.observe(s));
+</script>
+</body>
+</html>
