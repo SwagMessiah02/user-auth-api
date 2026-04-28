@@ -7,6 +7,15 @@ services:
       POSTGRES_PASSWORD: 12345
       POSTGRES_DB: db_auth
     volumes:
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./src/init.sql:/docker-entrypoint-initdb.d/init.sql
     ports:
       - 5432:5432
+  server:
+    build: .
+    environment:
+      HTTP_PORT: 8080
+      DB_HOST: localhost
+    depends_on:
+      - db
+    ports:
+      - 8080:8080
