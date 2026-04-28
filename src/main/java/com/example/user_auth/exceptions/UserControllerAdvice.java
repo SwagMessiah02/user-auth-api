@@ -4,11 +4,10 @@ import com.example.user_auth.controllers.AuthController;
 import com.example.user_auth.dtos.ErrorResponseDTO;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-
-import java.util.Date;
 
 @ControllerAdvice(assignableTypes = AuthController.class)
 public class UserControllerAdvice {
@@ -34,11 +33,19 @@ public class UserControllerAdvice {
                 new ErrorResponseDTO("Usuário com o email já existe", HttpStatus.BAD_REQUEST.value()), HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(exception = Exception.class)
-    public ResponseEntity<ErrorResponseDTO> serverException() {
+    @ExceptionHandler(exception = AuthenticationException.class)
+    public ResponseEntity<ErrorResponseDTO> authenticationException() {
 
         return new ResponseEntity<ErrorResponseDTO>(
-                new ErrorResponseDTO("Error trying to register user",
+                new ErrorResponseDTO("Email ou senha incorretos",
+                        HttpStatus.INTERNAL_SERVER_ERROR.value()), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler(exception = InvalidEmailException.class)
+    public ResponseEntity<ErrorResponseDTO> invalidEmailException() {
+
+        return new ResponseEntity<ErrorResponseDTO>(
+                new ErrorResponseDTO("Email com formato inválido",
                         HttpStatus.INTERNAL_SERVER_ERROR.value()), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }
