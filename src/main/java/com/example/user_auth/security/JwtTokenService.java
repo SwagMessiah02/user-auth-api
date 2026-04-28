@@ -19,7 +19,7 @@ public class JwtTokenService {
     @Value("${jwt.secret}")
     private String secret;
 
-    private long expirationMs = 60000 * 10 * 60 * 24; // 24 horas
+    private long expirationMs = 60000 * 60 * 24; // 24 horas
 
     public String generateToken(UserDetails userDetails) {
         Map<String, Object> claims = new HashMap<>();
