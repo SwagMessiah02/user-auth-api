@@ -70,7 +70,9 @@
 
 <script th:inline="javascript">
     /*<![CDATA[*/
-    const API_BASE = 'http://localhost:8080';
+    // const API_BASE = 'http://localhost:8080';
+    const LOGIN_URL    = /*[[@{/auth/login}]]*/ '/auth/login';
+    const PROTECTED_URL = /*[[@{/user/protected}]]*/ '/user/protected';
 
     const btn          = document.getElementById('btnLogin');
     const alertError   = document.getElementById('alertError');
@@ -97,7 +99,7 @@
         alertSuccess.classList.remove('show');
 
         try {
-            const response = await fetch(API_BASE + '/auth/login', {
+            const response = await fetch(LOGIN_URL, {
                 method:  'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body:    JSON.stringify({ email, password })
@@ -112,14 +114,14 @@
             const token = data.token;
             if (!token) throw new Error('Token não recebido do servidor.');
 
-            await fetch(API_BASE + '/user/protected', {
-                method: 'GET',
-                headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token}
-            })
+            // await fetch(API_BASE + '/user/protected', {
+            //     method: 'GET',
+            //     headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token}
+            // })
 
             showAlert(alertSuccess, 'Login realizado! Redirecionando...');
 
-            window.location.href = '/user/protected'
+            window.location.href = PROTECTED_URL;
 
         } catch (err) {
             showAlert(alertError, err.message || 'Erro inesperado. Tente novamente.');

@@ -86,7 +86,9 @@
 
 <script th:inline="javascript">
     /*<![CDATA[*/
-    const API_BASE = 'http://localhost:8080';
+    // const API_BASE = 'http://localhost:8080';
+    const REGISTER_URL = /*[[@{/auth/register}]]*/ '/auth/register';
+    const LOGIN_URL    = /*[[@{/user/login}]]*/ '/user/login';
 
     const btn           = document.getElementById('btnRegister');
     const alertError    = document.getElementById('alertError');
@@ -163,7 +165,7 @@
         btn.disabled = true;
 
         try {
-            const response = await fetch(API_BASE + '/auth/register', {
+            const response = await fetch(REGISTER_URL, {
                 method:  'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body:    JSON.stringify({ name, email, password })
@@ -177,7 +179,7 @@
 
             showAlert(alertSuccess, 'Conta criada com sucesso! Redirecionando para o login…');
             setTimeout(() => {
-                window.location.href = '/user/login';
+                window.location.href = LOGIN_URL;
             }, 2000);
 
         } catch (err) {
