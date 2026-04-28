@@ -3,7 +3,7 @@ services:
     image: postgres
     hostname: db
     environment:
-      POSTGRES_USER: root
+      POSTGRES_USER: postgres
       POSTGRES_PASSWORD: 12345
       POSTGRES_DB: db_auth
     volumes:
