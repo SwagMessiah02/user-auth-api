@@ -4,34 +4,26 @@ import com.example.user_auth.EmailValidator;
 import com.example.user_auth.dtos.AuthResponseDTO;
 import com.example.user_auth.dtos.LoginDTO;
 import com.example.user_auth.dtos.RegisterDTO;
+import com.example.user_auth.exceptions.InvalidEmailException;
 import com.example.user_auth.exceptions.InvalidRequestException;
 import com.example.user_auth.exceptions.UserAlreadyExistsException;
-import com.example.user_auth.models.Role;
 import com.example.user_auth.models.User;
 import com.example.user_auth.repository.RoleRepository;
 import com.example.user_auth.repository.UserRepository;
-import com.example.user_auth.security.CustomUserDetailsService;
-import com.example.user_auth.security.JwtSecurityFilter;
 import com.example.user_auth.security.JwtTokenService;
-import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
-import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Optional;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @RestController
 @RequestMapping("/auth")
@@ -59,12 +51,28 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<AuthResponseDTO> login(@RequestBody LoginDTO loginData) {
+    public ResponseEntity<AuthResponseDTO> login(@RequestBody LoginDTO loginData, HttpServletResponse response)
+            throws AuthenticationException, InvalidEmailException {
+        if(!emailValidator.INSTANCE.matcher(loginData.email().trim()).matches()) {
+            throw new InvalidEmailException("Email inválido");
+        }
+
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(loginData.email(), loginData.password()));
 
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+
+        Assert.notNull(userDetails, "Error ao tentar realizar login.");
+
         String token = jwtTokenService.generateToken(userDetails);
+
+        Cookie cookie = new Cookie("authToken", token);
+        cookie.setHttpOnly(true);
+        cookie.setSecure(true);
+        cookie.setPath("/");
+        cookie.setMaxAge(60 * 60 * 24);
+        cookie.setAttribute("SameSite", "Strict");
+        response.addCookie(cookie);
 
         return ResponseEntity.ok(new AuthResponseDTO(token, "Login realizado com sucesso"));
     }
@@ -91,15 +99,5 @@ public class AuthController {
         userRepository.save(user);
 
         return ResponseEntity.ok(user);
-    }
-
-    @GetMapping("/protected")
-    public ResponseEntity<String> protec() {
-        return ResponseEntity.ok("Usuário autenticado");
-    }
-
-    @GetMapping("/admin")
-    public ResponseEntity<String> admin() {
-        return ResponseEntity.ok("Usuário autorizado");
     }
 }
