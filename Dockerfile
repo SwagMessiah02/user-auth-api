@@ -4,6 +4,6 @@ COPY . .
 RUN ./mvnw clean package -DskipTests
 
 FROM tomcat:11.0-jdk25
-COPY --from=build /tomcat-server/target/user-auth-0.0.1-SNAPSHOT.war /usr/local/tomcat/webapps/
+COPY --from=build /tomcat-server/target/*.war /usr/local/tomcat/webapps/
 
 EXPOSE 8080
